@@ -1,9 +1,18 @@
 const WebSocket = require('ws');
+const http = require('http');
 
-const PORT = process.env.PORT || 8080;
-const wss = new WebSocket.Server({ port: PORT });
-const clients = new Map(); // 存储客户端连接
-const tasks = new Map();   // 存储任务数据
+// 创建 HTTP 服务器来响应健康检查
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('WebSocket server is running');
+});
+
+const PORT = process.env.PORT || 3000;
+const wss = new WebSocket.Server({ server });
+
+// 存储客户端连接和任务数据
+const clients = new Map();
+const tasks = new Map();
 
 // 添加心跳检测
 function heartbeat() {
@@ -92,4 +101,6 @@ wss.on('close', () => {
     clearInterval(interval);
 });
 
-console.log(`WebSocket服务器启动在端口 ${PORT}`);
+server.listen(PORT, () => {
+    console.log(`服务器启动在端口 ${PORT}`);
+});
